@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 font-sans antialiased selection:bg-zinc-800">
+
+    <nav class="fixed top-0 left-0 w-full z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="text-xs sm:text-sm uppercase tracking-widest text-zinc-400 hover:text-white transition flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Back to Portfolio
+            </a>
+            <span class="text-base sm:text-xl font-light tracking-widest uppercase">Aura<span class="font-bold">Architecture</span></span>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-24 max-w-4xl mx-auto px-4 sm:px-6 min-h-screen space-y-8 sm:space-y-12">
+        <div id="loading-state" class="text-center py-20 text-zinc-500">
+            <p>Loading project details...</p>
+        </div>
+
+        <div id="project-container" class="space-y-8 sm:space-y-12 hidden">
+            <div>
+                <span id="proj-category" class="text-xs uppercase tracking-widest text-zinc-500 block mb-2">Category</span>
+                <h1 id="proj-title" class="text-2xl sm:text-3xl md:text-5xl font-light tracking-tight text-white">Title</h1>
+                <p id="proj-location" class="text-xs sm:text-sm text-zinc-400 mt-2"><i class="fa-solid fa-location-dot mr-1"></i> <span></span></p>
+            </div>
+
+            <!-- Dynamic Image & Description Sections -->
+            <div id="content-sections" class="space-y-12 sm:space-y-16">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-zinc-900 text-center text-xs text-zinc-600 px-4">
+        <p>&copy; 2026 Architectural Portfolio. Powered by Supabase.</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://yqrjzrjcgjcsezimeeja.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlxcmp6cmpjZ2pjc2V6aW1lZWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5Nzg5NzMsImV4cCI6MjEwNDU1NDk3M30.bbYKOilE6OsgHEwmjoI0e-KBC5SMgH2bN2yYkzmItrk';
+        
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function loadDetails() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+
+            if (!id) {
+                document.getElementById('loading-state').innerHTML = '<p class="text-red-400">No project ID specified. <a href="index.html" class="underline">Return home</a>.</p>';
+                return;
+            }
+
+            try {
+                const { data, error } = await _supabase
+                    .from('project_details')
+                    .select('*, main_projects(title, category)')
+                    .eq('main_project_id', id)
+                    .single();
+
+                if (error || !data) {
+                    document.getElementById('loading-state').innerHTML = '<p class="text-red-400">Project details not found. <a href="index.html" class="underline">Return home</a>.</p>';
+                    return;
+                }
+
+                document.getElementById('proj-category').innerText = data.main_projects?.category || 'Architecture';
+                document.getElementById('proj-title').innerText = data.main_projects?.title || 'Project Detail';
+                document.getElementById('proj-location').querySelector('span').innerText = data.client_or_location || 'Location Not Specified';
+
+                const sectionsContainer = document.getElementById('content-sections');
+                sectionsContainer.innerHTML = '';
+
+                for (let i = 1; i <= 5; i++) {
+                    const img = data[`image_${i}`];
+                    const desc = data[`description_${i}`];
+
+                    if (img || desc) {
+                        const block = document.createElement('div');
+                        block.className = 'space-y-4 border-b border-zinc-900 pb-12 last:border-b-0';
+                        block.innerHTML = `
+                            ${img ? `<div class="aspect-video bg-zinc-900 border border-zinc-800 overflow-hidden"><img src="${img}" alt="Project Image ${i}" class="w-full h-full object-cover"></div>` : ''}
+                            ${desc ? `<p class="text-zinc-300 font-light leading-relaxed text-sm sm:text-base md:text-lg">${desc}</p>` : ''}
+                        `;
+                        sectionsContainer.appendChild(block);
+                    }
+                }
+
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('project-container').classList.remove('hidden');
+
+            } catch (err) {
+                console.error('Error loading detail data:', err);
+                document.getElementById('loading-state').innerHTML = '<p class="text-red-400">Error retrieving data.</p>';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadDetails);
+    </script>
+</body>
+</html>
