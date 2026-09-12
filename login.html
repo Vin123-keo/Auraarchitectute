@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Aura Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-xl p-8 shadow-2xl relative">
+        <!-- Back Button -->
+        <a href="index.html" class="inline-flex items-center gap-2 text-xs text-zinc-400 hover:text-white transition mb-6">
+            <i class="fa-solid fa-arrow-left"></i> Back to Home
+        </a>
+
+        <!-- Header -->
+        <div class="text-center space-y-2 mb-8">
+            <h1 class="text-2xl font-light uppercase tracking-widest text-white">Aura<span class="font-bold">Architecture</span></h1>
+            <p class="text-xs text-zinc-400">Choose a method to sign in to your account</p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- OPTION 1: TELEGRAM LOGIN -->
+            <div class="flex flex-col items-center justify-center p-5 bg-zinc-950/80 rounded-lg border border-zinc-800 space-y-3">
+                <span class="text-xs text-zinc-400 font-medium uppercase tracking-wider">Option 1: Telegram Auth</span>
+                
+                <div id="telegram-login-container">
+                    <script async src="https://telegram.org/js/telegram-widget.js?22" 
+                            data-telegram-login="davinmepstore_bot" 
+                            data-size="large" 
+                            data-radius="8" 
+                            data-onauth="onTelegramAuth(user)" 
+                            data-request-access="write">
+                    </script>
+                </div>
+            </div>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-zinc-800"></div>
+                <span class="flex-shrink mx-4 text-zinc-500 text-xs uppercase">or</span>
+                <div class="flex-grow border-t border-zinc-800"></div>
+            </div>
+
+            <!-- OPTION 2: GMAIL / SUPABASE AUTH -->
+            <div class="p-5 bg-zinc-950/80 rounded-lg border border-zinc-800 space-y-3 opacity-50 pointer-events-none">
+                <span class="text-xs text-zinc-400 font-medium uppercase tracking-wider block text-center">Option 2: Gmail / Google</span>
+                
+                <button disabled 
+                        class="w-full bg-zinc-900 border border-zinc-700 text-white font-medium py-2.5 px-4 rounded flex items-center justify-center gap-3 text-xs tracking-wider cursor-not-allowed">
+                    <i class="fa-brands fa-google text-red-400 text-sm"></i>
+                    Sign in with Google (Coming Soon)
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <p id="login-status" class="text-xs text-center hidden mt-6"></p>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://yqrjzrjcgjcsezimeeja.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlxcmp6cmpjZ2pjc2V6aW1lZWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5Nzg5NzMsImV4cCI6MjEwNDU1NDk3M30.bbYKOilE6OsgHEwmjoI0e-KBC5SMgH2bN2yYkzmItrk';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function handlePostLoginRedirect() {
+            const redirectUrl = sessionStorage.getItem('redirect_after_login');
+            if (redirectUrl) {
+                sessionStorage.removeItem('redirect_after_login');
+                window.location.href = redirectUrl;
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        // Telegram Auth Callback
+        async function onTelegramAuth(user) {
+            const statusMsg = document.getElementById('login-status');
+            statusMsg.innerText = "Authenticating Telegram user...";
+            statusMsg.className = "text-xs text-center text-zinc-400 mt-6 block";
+
+            try {
+                const { error } = await _supabase
+                    .from('users_profiles')
+                    .upsert([{
+                        telegram_id: user.id,
+                        first_name: user.first_name,
+                        last_name: user.last_name || null,
+                        username: user.username || null,
+                        photo_url: user.photo_url || null,
+                        auth_date: user.auth_date
+                    }], { onConflict: 'telegram_id' });
+
+                if (error) throw error;
+
+                localStorage.setItem('telegram_user', JSON.stringify(user));
+
+                statusMsg.innerText = "Login successful! Redirecting...";
+                statusMsg.className = "text-xs text-center text-emerald-400 mt-6 block";
+
+                setTimeout(() => {
+                    handlePostLoginRedirect();
+                }, 1000);
+
+            } catch (err) {
+                console.error("Login process error:", err);
+                statusMsg.innerText = "Authentication failed: " + (err.message || "Please try again.");
+                statusMsg.className = "text-xs text-center text-rose-400 mt-6 block";
+            }
+        }
+    </script>
+</body>
+</html>
