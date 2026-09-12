@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Aura Architecture</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pre-compiled Tailwind CSS for Production -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -81,30 +82,42 @@
             }
         }
 
-        // Telegram Auth Callback
+        // Safe Telegram Auth Callback
         async function onTelegramAuth(user) {
             const statusMsg = document.getElementById('login-status');
-            statusMsg.innerText = "Authenticating Telegram user...";
-            statusMsg.className = "text-xs text-center text-zinc-400 mt-6 block";
+            if (statusMsg) {
+                statusMsg.innerText = "Authenticating Telegram user...";
+                statusMsg.className = "text-xs text-center text-zinc-400 mt-6 block";
+            }
+
+            if (!user || !user.id) {
+                if (statusMsg) {
+                    statusMsg.innerText = "Authentication failed: Invalid user payload.";
+                    statusMsg.className = "text-xs text-center text-rose-400 mt-6 block";
+                }
+                return;
+            }
 
             try {
                 const { error } = await _supabase
                     .from('users_profiles')
                     .upsert([{
                         telegram_id: user.id,
-                        first_name: user.first_name,
+                        first_name: user.first_name || '',
                         last_name: user.last_name || null,
                         username: user.username || null,
                         photo_url: user.photo_url || null,
-                        auth_date: user.auth_date
+                        auth_date: user.auth_date || Math.floor(Date.now() / 1000)
                     }], { onConflict: 'telegram_id' });
 
                 if (error) throw error;
 
                 localStorage.setItem('telegram_user', JSON.stringify(user));
 
-                statusMsg.innerText = "Login successful! Redirecting...";
-                statusMsg.className = "text-xs text-center text-emerald-400 mt-6 block";
+                if (statusMsg) {
+                    statusMsg.innerText = "Login successful! Redirecting...";
+                    statusMsg.className = "text-xs text-center text-emerald-400 mt-6 block";
+                }
 
                 setTimeout(() => {
                     handlePostLoginRedirect();
@@ -112,8 +125,10 @@
 
             } catch (err) {
                 console.error("Login process error:", err);
-                statusMsg.innerText = "Authentication failed: " + (err.message || "Please try again.");
-                statusMsg.className = "text-xs text-center text-rose-400 mt-6 block";
+                if (statusMsg) {
+                    statusMsg.innerText = "Authentication failed: " + (err.message || "Please try again.");
+                    statusMsg.className = "text-xs text-center text-rose-400 mt-6 block";
+                }
             }
         }
     </script>
