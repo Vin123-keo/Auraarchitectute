@@ -4,146 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Architectural Portfolio & Works</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== COLOR / VISIBILITY FIX ===== */
-        :root {
-            --page-bg: #0f1115;
-            --surface: #181b21;
-            --surface-hover: #272c34;
-            --border: #3a404a;
-            --border-strong: #555d68;
-            --text: #f5f7fa;
-            --text-soft: #d6dbe2;
-            --text-muted: #aab2bd;
-            --text-dim: #8b95a3;
-        }
-
-        html {
-            background: var(--page-bg);
-            color-scheme: dark;
-        }
-
         body {
-            margin: 0;
             font-family: 'Kantumruy Pro', sans-serif;
-            background-color: var(--page-bg) !important;
-            color: var(--text) !important;
-        }
-
-        /* Stronger, explicit colors */
-        .bg-zinc-950 { background-color: var(--page-bg) !important; }
-        .bg-zinc-900 { background-color: var(--surface) !important; }
-        .border-zinc-900 { border-color: #30343b !important; }
-        .border-zinc-800 { border-color: var(--border) !important; }
-
-        .text-zinc-100 { color: var(--text) !important; }
-        .text-zinc-300 { color: var(--text-soft) !important; }
-        .text-zinc-400 { color: var(--text-muted) !important; }
-        .text-zinc-500 { color: var(--text-dim) !important; }
-        .text-zinc-600 { color: #7f8996 !important; }
-        .text-white { color: #ffffff !important; }
-
-        nav {
-            background-color: rgba(15, 17, 21, 0.96) !important;
-            border-bottom-color: #30343b !important;
-        }
-
-        .project-card-fixed {
-            background-color: var(--surface) !important;
-            border: 1px solid var(--border) !important;
-        }
-
-        .project-card-fixed:hover {
-            background-color: var(--surface-hover) !important;
-            border-color: var(--border-strong) !important;
-        }
-
-        input {
-            background-color: #0b0d11 !important;
-            color: #f5f7fa !important;
-            border-color: #414854 !important;
-        }
-
-        input::placeholder {
-            color: #7f8996 !important;
-            opacity: 1 !important;
-        }
-
-        input:focus {
-            border-color: #aeb6c1 !important;
-            box-shadow: 0 0 0 1px #aeb6c1 !important;
-        }
-
-        .contact-box-fixed {
-            background-color: var(--surface) !important;
-            border-color: var(--border) !important;
-        }
-
-        .project-image {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 1 !important;
-            filter: none !important;
-        }
-
-        /* Tailwind 2.2 compatibility */
-        .aspect-4-3 {
-            position: relative;
-            aspect-ratio: 4 / 3;
-            overflow: hidden;
-        }
-
-        @supports not (aspect-ratio: 4 / 3) {
-            .aspect-4-3 {
-                height: 0;
-                padding-top: 75%;
-            }
-            .aspect-4-3 > img {
-                position: absolute;
-                inset: 0;
-            }
-        }
-
-        .image-error {
-            background: #242831 !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .image-error::after {
-            content: 'Image unavailable';
-            color: #8b95a3;
-            font-size: 12px;
-        }
-
-        .tab-btn {
-            color: #aab2bd !important;
-        }
-
-        .tab-btn:hover,
-        .tab-btn.text-white {
-            color: #ffffff !important;
-        }
-
-        ::selection {
-            background: #3b414b;
-            color: #ffffff;
         }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 font-sans antialiased selection:bg-zinc-800">
 
     <!-- Top Navigation -->
-    <nav class="fixed top-0 left-0 w-full z-40 backdrop-blur-md border-b border-zinc-900">
+    <nav class="fixed top-0 left-0 w-full z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex flex-col sm:flex-row items-center justify-between py-2 sm:py-0 gap-2 sm:gap-0">
-            <span class="text-base sm:text-xl font-light tracking-widest uppercase text-white">Aura<span class="font-bold">Architecture</span></span>
+            <span class="text-base sm:text-xl font-light tracking-widest uppercase">Aura<span class="font-bold">Architecture</span></span>
             
             <div class="flex space-x-4 sm:space-x-8 text-xs sm:text-sm font-medium">
                 <button onclick="switchTab('work')" id="tab-btn-work" class="tab-btn text-white pb-1 border-b-2 border-white transition">Work</button>
@@ -167,25 +43,28 @@
         <section id="section-work" class="tab-section">
             <div class="mb-8 sm:mb-12">
                 <span class="text-xs uppercase tracking-widest text-zinc-500 block mb-2">Portfolio & Concepts</span>
-                <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-white">Featured Architectural Works</h1>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight">Featured Architectural Works</h1>
             </div>
             <div id="projects-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 <p class="text-zinc-500">Loading portfolio...</p>
             </div>
         </section>
 
-        <!-- TAB 2: DONE WORK -->
+        <!-- TAB 2: DONE WORK (ស្នាដៃបានបញ្ចប់ / ម៉ៅការ) -->
         <section id="section-donework" class="tab-section hidden space-y-16">
+            
+            <!-- 1. Khmer Language Intro Description -->
             <div class="space-y-4">
                 <div>
                     <span class="text-xs uppercase tracking-widest text-zinc-500 block mb-2">សិក្សាគម្រោង ម៉ៅការ</span>
-                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-white">Aura&KH Construction</h1>
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight">Aura&KH Construction</h1>
                 </div>
                 <p class="text-zinc-300 font-light leading-relaxed text-sm sm:text-base max-w-3xl">
                     យើងមានទទួលម៉ៅការ សាងសង់ គ្រប់ប្រភេទ ផ្ទះ វីឡា ផ្ទះ ក្រពើហា សំណង់ទូទៅ និងមានក្រុមម៉ៅការ ទឹកភ្លើងស្រាប់ ។ សិក្សាប្លង់ សម្រាប់ អតិថិជន មានគំរូ model , ការរចនា 3D មើលឃើញទិដ្ឋភាពពិតមុនសាងសង់ មានការគណនាត្រឹមត្រូវទៅតាមបទដ្ឋានបច្ចេកទេស សំណង់ និងទឹកភ្លើង ដោយវិស្វករ មានសញ្ញាបត្រស្រាប់ ។ សន្សំសំចៃពេលវេលា និងទទួលបាន សោភ័ណភាពដូចការចង់បានរបស់ អតិថិជន។
                 </p>
             </div>
 
+            <!-- 2. Supabase Rendered Projects Grid -->
             <div>
                 <h2 class="text-lg font-medium text-zinc-400 mb-6 border-b border-zinc-800 pb-2">បញ្ជីគម្រោងដែលបានសាងសង់រួច</h2>
                 <div id="donework-grid" class="grid grid-cols-2 gap-4 sm:gap-8">
@@ -193,7 +72,8 @@
                 </div>
             </div>
 
-            <div class="contact-box-fixed border p-6 sm:p-10 rounded-lg space-y-6 max-w-3xl mx-auto">
+            <!-- 3. Contact Form Box -->
+            <div class="bg-zinc-900/60 border border-zinc-800 p-6 sm:p-10 rounded-lg space-y-6 max-w-3xl mx-auto">
                 <div class="text-center space-y-2">
                     <h3 class="text-xl sm:text-2xl font-light text-white tracking-wide">
                         ទំនាក់ទំនង សម្រាប់ការសិក្សាប្លង់ និងសាងសង់
@@ -238,11 +118,12 @@
         <section id="section-profile" class="tab-section hidden max-w-3xl mx-auto">
             <div class="mb-8 sm:mb-12 text-center">
                 <span class="text-xs uppercase tracking-widest text-zinc-500 block mb-2">Background</span>
-                <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-white">Professional Profile</h1>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight">Professional Profile</h1>
             </div>
             
             <div class="space-y-8">
-                <div class="bg-zinc-900 border border-zinc-800 p-6 sm:p-12 space-y-6">
+                <!-- About Me Box -->
+                <div class="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-12 space-y-6">
                     <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
                         <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border border-zinc-700 bg-zinc-950 flex-shrink-0">
                             <img src="images/profile.jpg" alt="Profile Picture" class="w-full h-full object-cover">
@@ -252,30 +133,31 @@
                             <p class="text-zinc-300 font-light leading-relaxed text-sm sm:text-base">
                                 Specialized in architectural drafting, structural design, network infrastructure, and spatial planning. Focused on functional, high-precision building frameworks and sustainable execution.
                             </p>
-                            <p class="text-zinc-400 font-light leading-relaxed text-xs sm:text-sm border-t border-zinc-800 pt-3">
+                            <p class="text-zinc-400 font-light leading-relaxed text-xs sm:text-sm border-t border-zinc-800/80 pt-3">
                                 Backed by a dedicated <span class="text-white font-normal">MEP (Mechanical, Electrical & Plumbing) engineering team</span>, we provide complete drafting support, site plan layout, and engineering coordination for seamless project completion.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-zinc-900 border border-zinc-800 p-6 sm:p-8 space-y-6">
+                <!-- School Certificates Section -->
+                <div class="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-8 space-y-6">
                     <h3 class="text-xl font-medium text-white">School & Certificates</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="space-y-2">
-                            <div class="aspect-4-3 bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
-                                <img src="images/certi1.jpg" alt="Certificate 1" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                            <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
+                                <img src="images/certi1.HEIC" alt="Certificate 1" class="w-full h-full object-cover hover:scale-105 transition duration-500">
                             </div>
                             <p class="text-xs text-zinc-400 text-center">Certificate 1</p>
                         </div>
                         <div class="space-y-2">
-                            <div class="aspect-4-3 bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
-                                <img src="images/certi2.jpg" alt="Certificate 2" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                            <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
+                                <img src="images/certi2.HEIC" alt="Certificate 2" class="w-full h-full object-cover hover:scale-105 transition duration-500">
                             </div>
                             <p class="text-xs text-zinc-400 text-center">Certificate 2</p>
                         </div>
                         <div class="space-y-2">
-                            <div class="aspect-4-3 bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
+                            <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
                                 <img src="images/cert3.jpg" alt="Certificate 3" class="w-full h-full object-cover hover:scale-105 transition duration-500">
                             </div>
                             <p class="text-xs text-zinc-400 text-center">Certificate 3</p>
@@ -291,6 +173,7 @@
         <p>&copy; 2026 Architectural. Powered by Davin Store.</p>
     </footer>
 
+    <!-- FLOATING STORE BUTTON (MICRO VERSION) -->
     <a href="https://your-store-url.com" 
        target="_blank" 
        rel="noopener noreferrer" 
@@ -309,6 +192,7 @@
 
         let cachedProjects = [];
 
+        // Utility to check if user is logged in (Google OAuth or Telegram)
         async function getAuthenticatedUser() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session && session.user) return { type: 'google', user: session.user };
@@ -369,17 +253,15 @@
 
         function createCard(item) {
             const card = document.createElement('div');
-            card.className = 'project-card-fixed group overflow-hidden cursor-pointer transition';
+            card.className = 'group bg-zinc-900 border border-zinc-800 overflow-hidden cursor-pointer hover:border-zinc-600 transition';
             card.onclick = () => { window.location.href = `project.html?id=${item.id}`; };
             card.innerHTML = `
-                <div class="aspect-4-3 bg-zinc-950 overflow-hidden">
-                    <img src="${item.thumbnail_url}" alt="${item.title}" loading="lazy"
-                         class="project-image w-full h-full group-hover:scale-105 transition duration-500"
-                         onerror="this.style.display='none'; this.parentElement.classList.add('image-error');">
+                <div class="aspect-[4/3] bg-zinc-950 overflow-hidden">
+                    <img src="${item.thumbnail_url}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                 </div>
                 <div class="p-4 sm:p-6">
                     <span class="text-xs uppercase tracking-widest text-zinc-500 block mb-2">${item.category || 'Architecture'}</span>
-                    <h3 class="text-base sm:text-xl font-medium text-white mb-2">${item.title}</h3>
+                    <h3 class="text-base sm:text-xl font-medium mb-2">${item.title}</h3>
                     <p class="text-zinc-400 text-xs sm:text-sm font-light line-clamp-2">${item.short_description}</p>
                     <span class="inline-block mt-4 text-xs text-white underline underline-offset-4">View Details &rarr;</span>
                 </div>
@@ -387,6 +269,7 @@
             return card;
         }
 
+        // Submits to `contact_submissions` table (Protected by Login)
         async function submitContactForm(event) {
             event.preventDefault();
             
