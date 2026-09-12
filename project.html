@@ -4,15 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Details</title>
-    <!-- Fixed: Replacing Play CDN script with static Tailwind CSS stylesheet -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #09090b; /* zinc-950 fallback */
-        }
-    </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 font-sans antialiased selection:bg-zinc-800">
 
@@ -44,7 +38,7 @@
                 <!-- Injected via JS -->
             </div>
 
-            <!-- BUY THIS PROJECT FORM SECTION -->
+            <!-- BUY THIS PROJECT FORM SECTION (Only visible for 'portfolio/work' category) -->
             <div id="buy-project-section" class="bg-zinc-900/60 border border-zinc-800 p-6 sm:p-10 rounded-lg space-y-6 max-w-3xl mx-auto mt-16 hidden">
                 <div class="text-center space-y-2">
                     <h3 class="text-xl sm:text-2xl font-light text-white tracking-wide uppercase">
@@ -56,6 +50,7 @@
                 </div>
 
                 <form id="order-form" onsubmit="submitOrderForm(event)" class="space-y-6">
+                    <!-- Option Checkboxes -->
                     <div class="space-y-3 pt-2">
                         <label class="block text-xs uppercase tracking-wider text-zinc-400 mb-2">Select Included Packages</label>
                         
@@ -75,6 +70,7 @@
                         </label>
                     </div>
 
+                    <!-- Contact Details -->
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-zinc-400 mb-1">Full Name</label>
@@ -121,6 +117,7 @@
         let currentCategory = 'portfolio';
         let currentProjectTitle = 'Project Detail';
 
+        // Utility to check if user is logged in (Google OAuth or Telegram)
         async function getAuthenticatedUser() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session && session.user) return { type: 'google', user: session.user };
@@ -228,6 +225,7 @@
             }
         }
 
+        // Submits to `project_orders` table (Protected by Login)
         async function submitOrderForm(event) {
             event.preventDefault();
             
