@@ -104,6 +104,8 @@
             }
 
             try {
+                const timestampNow = new Date().toISOString();
+
                 const { error } = await _supabase
                     .from('users_profiles')
                     .upsert([{
@@ -112,7 +114,8 @@
                         last_name: user.last_name || null,
                         username: user.username || null,
                         photo_url: user.photo_url || null,
-                        auth_date: user.auth_date || Math.floor(Date.now() / 1000)
+                        auth_date: user.auth_date || Math.floor(Date.now() / 1000),
+                        updated_at: timestampNow
                     }], { onConflict: 'telegram_id' });
 
                 if (error) throw error;
