@@ -32,6 +32,19 @@
                 <a href="https://www.facebook.com/share/1BuQeJdsCv/?mibextid=wwXIfr" target="_blank" class="hover:text-white transition" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
                 <a href="https://www.tiktok.com/@aura.architecture4" target="_blank" class="hover:text-white transition" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
                 <a href="mailto:Auraarchitecture524@gmail.com" class="hover:text-white transition" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
+                
+                <!-- Dynamic Auth Button / Profile UI -->
+                <div id="auth-container" class="relative text-sm border-l border-zinc-800 pl-4">
+                    <button onclick="openAuthModal()" id="login-nav-btn" class="bg-zinc-100 text-zinc-950 px-3 py-1 rounded font-medium hover:bg-zinc-300 transition text-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login
+                    </button>
+                    <div id="user-profile-menu" class="hidden flex items-center gap-3">
+                        <span id="user-display-identifier" class="text-xs text-zinc-300 font-light max-w-[120px] truncate"></span>
+                        <button onclick="handleLogout()" class="text-xs text-red-400 hover:text-red-300 transition flex items-center gap-1" title="Log Out">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -169,6 +182,51 @@
 
     </main>
 
+    <!-- AUTHENTICATION MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-50 hidden bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-lg max-w-md w-full p-6 space-y-6 relative shadow-2xl">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-1">
+                <h3 class="text-xl font-medium text-white">Log In / Sign Up</h3>
+                <p class="text-xs text-zinc-400">Sign in to contact or submit project inquiries.</p>
+            </div>
+
+            <div class="space-y-3">
+                <!-- Google Login Button -->
+                <button onclick="loginWithGoogle()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 font-medium py-2.5 rounded flex items-center justify-center gap-3 text-sm transition">
+                    <i class="fa-brands fa-google text-red-500"></i> Continue with Google (Gmail)
+                </button>
+
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-zinc-800"></div>
+                    <span class="flex-shrink mx-4 text-xs text-zinc-500 uppercase">Or Phone OTP</span>
+                    <div class="flex-grow border-t border-zinc-800"></div>
+                </div>
+
+                <!-- Phone Login Form -->
+                <div id="phone-input-section" class="space-y-3">
+                    <input type="tel" id="auth-phone-number" placeholder="+85512345678" 
+                           class="w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500">
+                    <button onclick="sendPhoneOTP()" id="send-otp-btn" class="w-full bg-white text-zinc-950 font-medium py-2 rounded text-xs uppercase tracking-wider hover:bg-zinc-200 transition">
+                        Send OTP Code
+                    </button>
+                </div>
+
+                <div id="otp-verify-section" class="hidden space-y-3">
+                    <input type="text" id="auth-otp-code" placeholder="Enter 6-digit OTP" 
+                           class="w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500">
+                    <button onclick="verifyPhoneOTP()" id="verify-otp-btn" class="w-full bg-green-600 text-white font-medium py-2 rounded text-xs uppercase tracking-wider hover:bg-green-500 transition">
+                        Verify & Login
+                    </button>
+                </div>
+
+                <p id="auth-status-msg" class="text-xs text-center hidden"></p>
+            </div>
+        </div>
+    </div>
+
     <footer class="py-12 border-t border-zinc-900 text-center text-xs text-zinc-600 px-4">
         <p>&copy; 2026 Architectural. Powered by Davin Store.</p>
     </footer>
@@ -192,7 +250,78 @@
 
         let cachedProjects = [];
 
-        // Utility to check if user is logged in (Google OAuth or Telegram)
+        // Auth Modal Controls
+        function openAuthModal() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        // Login Methods
+        async function loginWithGoogle() {
+            const { error } = await _supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: 'https://auraarchitecturemalin.supabase.co'
+                }
+            });
+            if (error) displayAuthError(error.message);
+        }
+
+        async function sendPhoneOTP() {
+            const phone = document.getElementById('auth-phone-number').value.trim();
+            if (!phone) return displayAuthError("Please enter a valid phone number.");
+
+            const { error } = await _supabase.auth.signInWithOtp({ phone: phone });
+            if (error) {
+                displayAuthError(error.message);
+            } else {
+                document.getElementById('phone-input-section').classList.add('hidden');
+                document.getElementById('otp-verify-section').classList.remove('hidden');
+                displayAuthSuccess("OTP sent to your phone!");
+            }
+        }
+
+        async function verifyPhoneOTP() {
+            const phone = document.getElementById('auth-phone-number').value.trim();
+            const token = document.getElementById('auth-otp-code').value.trim();
+
+            const { data, error } = await _supabase.auth.verifyOtp({
+                phone: phone,
+                token: token,
+                type: 'sms'
+            });
+
+            if (error) {
+                displayAuthError(error.message);
+            } else {
+                closeAuthModal();
+                updateAuthUI({ type: 'google', user: data.user });
+            }
+        }
+
+        function displayAuthError(msg) {
+            const el = document.getElementById('auth-status-msg');
+            el.innerText = msg;
+            el.className = "text-xs text-center text-red-400 mt-2 block";
+        }
+
+        function displayAuthSuccess(msg) {
+            const el = document.getElementById('auth-status-msg');
+            el.innerText = msg;
+            el.className = "text-xs text-center text-green-400 mt-2 block";
+        }
+
+        // Logout Handler
+        async function handleLogout() {
+            await _supabase.auth.signOut();
+            localStorage.removeItem('telegram_user');
+            updateAuthUI(null);
+        }
+
+        // Authenticated User Detection & Dynamic UI Update
         async function getAuthenticatedUser() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session && session.user) return { type: 'google', user: session.user };
@@ -201,6 +330,21 @@
             if (telegramUser) return { type: 'telegram', user: JSON.parse(telegramUser) };
 
             return null;
+        }
+
+        function updateAuthUI(authObj) {
+            const loginBtn = document.getElementById('login-nav-btn');
+            const profileMenu = document.getElementById('user-profile-menu');
+            const userDisplay = document.getElementById('user-display-identifier');
+
+            if (authObj) {
+                loginBtn.classList.add('hidden');
+                profileMenu.classList.remove('hidden');
+                userDisplay.innerText = authObj.user.email || authObj.user.phone || authObj.user.first_name || 'User';
+            } else {
+                loginBtn.classList.remove('hidden');
+                profileMenu.classList.add('hidden');
+            }
         }
 
         function switchTab(tabId) {
@@ -275,9 +419,8 @@
             
             const currentUser = await getAuthenticatedUser();
             if (!currentUser) {
-                sessionStorage.setItem('redirect_after_login', window.location.href);
-                alert('សូមចូលប្រព័ន្ធ (Login) ជាមុនសិន មុននឹងផ្ញើសារទំនាក់ទំនង។ / Please log in first to send an inquiry.');
-                window.location.href = 'login.html';
+                openAuthModal();
+                displayAuthError('Please log in first to submit your inquiry.');
                 return;
             }
 
@@ -310,18 +453,31 @@
                 console.error("Submission error:", err);
                 statusMsg.innerText = "មានបញ្ហាក្នុងការផ្ញើ សូមពិនិត្យមើល Supabase Table ឬ ព្យាយាមម្តងទៀត។";
                 statusMsg.className = "text-xs text-center text-red-400 mt-2 block";
-            } finally {
+            } opacity {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "ផ្ញើសារ (Send)";
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
             const requestedTab = params.get('tab');
             if (requestedTab) {
                 switchTab(requestedTab);
             }
+
+            // Check and set initial auth UI
+            const currentUser = await getAuthenticatedUser();
+            updateAuthUI(currentUser);
+
+            // Listen for auth state changes
+            _supabase.auth.onAuthStateChange((event, session) => {
+                if (session && session.user) {
+                    updateAuthUI({ type: 'google', user: session.user });
+                } else {
+                    updateAuthUI(null);
+                }
+            });
 
             fetchMainProjects();
         });
