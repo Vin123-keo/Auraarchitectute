@@ -38,7 +38,7 @@
                 <!-- Injected via JS -->
             </div>
 
-            <!-- BUY THIS PROJECT FORM SECTION (Only visible for 'portfolio/work' category) -->
+            <!-- BUY THIS PROJECT FORM SECTION -->
             <div id="buy-project-section" class="bg-zinc-900/60 border border-zinc-800 p-6 sm:p-10 rounded-lg space-y-6 max-w-3xl mx-auto mt-16 hidden">
                 <div class="text-center space-y-2">
                     <h3 class="text-xl sm:text-2xl font-light text-white tracking-wide uppercase">
@@ -117,7 +117,6 @@
         let currentCategory = 'portfolio';
         let currentProjectTitle = 'Project Detail';
 
-        // Utility to check if user is logged in (Google OAuth or Telegram)
         async function getAuthenticatedUser() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session && session.user) return { type: 'google', user: session.user };
@@ -225,7 +224,6 @@
             }
         }
 
-        // Submits to `project_orders` table (Protected by Login)
         async function submitOrderForm(event) {
             event.preventDefault();
             
@@ -245,22 +243,31 @@
             const phone = document.getElementById('order-phone').value.trim();
 
             const checkedOptions = Array.from(document.querySelectorAll('input[name="options"]:checked'))
-                .map(cb => cb.value);
+                .map(cb => cb.value)
+                .join(', '); // Join to string to prevent Array-type schema mismatch
 
             submitBtn.disabled = true;
             submitBtn.innerText = "Sending Order...";
 
+            // Get string representations of IDs
+            const userId = currentUser.user.id ? String(currentUser.user.id) : String(currentUser.user.telegram_id || '');
+
             try {
+                // Check payload keys matching table schema
+                const payload = {
+                    project_title: currentProjectTitle,
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    selected_options: checkedOptions
+                };
+
+                // Add user_id only if provided
+                if (userId) payload.user_id = userId;
+
                 const { data, error } = await _supabase
                     .from('project_orders')
-                    .insert([{ 
-                        project_title: currentProjectTitle,
-                        name: name, 
-                        email: email, 
-                        phone: phone,
-                        selected_options: checkedOptions,
-                        user_id: currentUser.user.id || currentUser.user.telegram_id
-                    }]);
+                    .insert([payload]);
 
                 if (error) throw error;
 
