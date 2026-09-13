@@ -244,30 +244,22 @@
 
             const checkedOptions = Array.from(document.querySelectorAll('input[name="options"]:checked'))
                 .map(cb => cb.value)
-                .join(', '); // Join to string to prevent Array-type schema mismatch
+                .join(', ');
 
             submitBtn.disabled = true;
             submitBtn.innerText = "Sending Order...";
 
-            // Get string representations of IDs
-            const userId = currentUser.user.id ? String(currentUser.user.id) : String(currentUser.user.telegram_id || '');
-
             try {
-                // Check payload keys matching table schema
-                const payload = {
-                    project_title: currentProjectTitle,
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    selected_options: checkedOptions
-                };
-
-                // Add user_id only if provided
-                if (userId) payload.user_id = userId;
-
+                // Correct table name target: project_inquiries
                 const { data, error } = await _supabase
-                    .from('project_orders')
-                    .insert([payload]);
+                    .from('project_inquiries')
+                    .insert([{ 
+                        project_title: currentProjectTitle,
+                        name: name, 
+                        email: email, 
+                        phone: phone,
+                        selected_options: checkedOptions
+                    }]);
 
                 if (error) throw error;
 
@@ -276,7 +268,7 @@
                 document.getElementById('order-form').reset();
             } catch (err) {
                 console.error("Submission error:", err);
-                statusMsg.innerText = "There was an issue sending your request. Please check Supabase setup or try again.";
+                statusMsg.innerText = `Error: ${err.message || 'There was an issue sending your request.'}`;
                 statusMsg.className = "text-xs text-center text-red-400 mt-2 block";
             } finally {
                 submitBtn.disabled = false;
