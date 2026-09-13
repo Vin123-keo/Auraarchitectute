@@ -195,10 +195,13 @@
         // Utility to check if user is logged in (Google OAuth or Telegram)
         async function getAuthenticatedUser() {
             const { data: { session } } = await _supabase.auth.getSession();
-            if (session && session.user) return { type: 'google', user: session.user };
+            if (session && session.user) return { type: 'google', id: session.user.id };
 
             const telegramUser = localStorage.getItem('telegram_user');
-            if (telegramUser) return { type: 'telegram', user: JSON.parse(telegramUser) };
+            if (telegramUser) {
+                const parsed = JSON.parse(telegramUser);
+                return { type: 'telegram', id: String(parsed.id) };
+            }
 
             return null;
         }
@@ -271,10 +274,16 @@
 
         // Submits to `contact_submissions` table (Protected by Login)
         async function submitContactForm(event) {
-            event.preventDefault();
+            if (event) event.preventDefault();
             
+            const name = document.getElementById('contact-name').value.trim();
+            const email = document.getElementById('contact-email').value.trim();
+            const phone = document.getElementById('contact-phone').value.trim();
+
             const currentUser = await getAuthenticatedUser();
             if (!currentUser) {
+                // Save form entries so they are restored and sent right after login
+                sessionStorage.setItem('pending_contact_form', JSON.stringify({ name, email, phone }));
                 sessionStorage.setItem('redirect_after_login', window.location.href);
                 alert('សូមចូលប្រព័ន្ធ (Login) ជាមុនសិន មុននឹងផ្ញើសារទំនាក់ទំនង។ / Please log in first to send an inquiry.');
                 window.location.href = 'login.html';
@@ -283,10 +292,6 @@
 
             const submitBtn = document.getElementById('contact-submit-btn');
             const statusMsg = document.getElementById('form-status');
-
-            const name = document.getElementById('contact-name').value.trim();
-            const email = document.getElementById('contact-email').value.trim();
-            const phone = document.getElementById('contact-phone').value.trim();
 
             submitBtn.disabled = true;
             submitBtn.innerText = "កំពុងផ្ញើ...";
@@ -298,7 +303,7 @@
                         name: name, 
                         email: email, 
                         phone: phone,
-                        user_id: currentUser.user.id || currentUser.user.telegram_id
+                        user_id: currentUser.id
                     }]);
 
                 if (error) throw error;
@@ -306,6 +311,7 @@
                 statusMsg.innerText = "សាររបស់អ្នកត្រូវបានផ្ញើរួចរាល់! សូមអរគុណ។";
                 statusMsg.className = "text-xs text-center text-green-400 mt-2 block";
                 document.getElementById('contact-form').reset();
+                sessionStorage.removeItem('pending_contact_form');
             } catch (err) {
                 console.error("Submission error:", err);
                 statusMsg.innerText = "មានបញ្ហាក្នុងការផ្ញើ សូមពិនិត្យមើល Supabase Table ឬ ព្យាយាមម្តងទៀត។";
@@ -316,7 +322,7 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
             const requestedTab = params.get('tab');
             if (requestedTab) {
@@ -324,6 +330,20 @@
             }
 
             fetchMainProjects();
+
+            // Auto-complete post-login submission if coming back from login.html
+            const pendingForm = sessionStorage.getItem('pending_contact_form');
+            if (pendingForm) {
+                const currentUser = await getAuthenticatedUser();
+                if (currentUser) {
+                    switchTab('donework');
+                    const data = JSON.parse(pendingForm);
+                    document.getElementById('contact-name').value = data.name;
+                    document.getElementById('contact-email').value = data.email;
+                    document.getElementById('contact-phone').value = data.phone;
+                    submitContactForm(null);
+                }
+            }
         });
     </script>
 </body>
