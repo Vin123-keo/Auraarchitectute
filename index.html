@@ -30,9 +30,7 @@
                 <a href="https://t.me/Auraarchitecture" target="_blank" class="hover:text-white transition" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
                 <a href="https://www.facebook.com/share/1BuQeJdsCv/?mibextid=wwXIfr" target="_blank" class="hover:text-white transition" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
                 <a href="https://www.tiktok.com/@aura.architecture4" target="_blank" class="hover:text-white transition" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
-                
-                <!-- GMAIL LINK (ADDED ID) -->
-                <a id="gmail-link" href="mailto:Auraarchitecture524@gmail.com" class="hover:text-white transition" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
+                <a href="mailto:Auraarchitecture524@gmail.com" class="hover:text-white transition" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
                 
                 <!-- ACCOUNT BUTTON -->
                 <div class="border-l border-zinc-800 pl-4">
@@ -101,20 +99,6 @@
                 const { data: { session } } = await _supabase.auth.getSession();
                 const telegramUser = localStorage.getItem('telegram_user');
                 isLoggedIn = !!((session && session.user) || telegramUser);
-
-                // Lock Gmail link if user is logged in
-                const gmailLink = document.getElementById('gmail-link');
-                if (gmailLink) {
-                    if (isLoggedIn) {
-                        gmailLink.removeAttribute('href');
-                        gmailLink.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
-                        gmailLink.setAttribute('title', 'Gmail contact locked while logged in');
-                    } else {
-                        gmailLink.setAttribute('href', 'mailto:Auraarchitecture524@gmail.com');
-                        gmailLink.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
-                        gmailLink.setAttribute('title', 'Gmail');
-                    }
-                }
             } catch (err) {
                 console.error('Session check error:', err);
                 isLoggedIn = false;
