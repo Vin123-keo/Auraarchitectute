@@ -135,7 +135,7 @@
                 if (error || !data) return;
                 
                 const workGrid = document.getElementById('projects-grid');
-                const workItems = data.filter(p => p.category === 'portfolio' || !p.category);
+                const workItems = data.filter(p => p.category === 'Portfolio' || !p.category);
                 
                 workGrid.innerHTML = workItems.length === 0 ? '<p class="text-zinc-500">No items found.</p>' : '';
                 workItems.forEach(item => workGrid.appendChild(createCard(item)));
