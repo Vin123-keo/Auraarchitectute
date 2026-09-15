@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura Architecture | Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -16,7 +18,7 @@
     <!-- Top Navigation -->
     <nav class="fixed top-0 left-0 w-full z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex flex-col sm:flex-row items-center justify-between py-2 sm:py-0 gap-2 sm:gap-0">
-            <span class="text-base sm:text-xl font-light tracking-widest uppercase text-white">Aura<span class="font-bold">Architecture</span></span>
+            <span class="text-base sm:text-xl font-light tracking-widest uppercase">Aura<span class="font-bold">Architecture</span></span>
             
             <div class="flex space-x-4 sm:space-x-8 text-xs sm:text-sm font-medium">
                 <a href="index.html" class="text-zinc-400 hover:text-white pb-1 border-b-2 border-transparent transition">Work</a>
@@ -24,14 +26,14 @@
             </div>
 
             <div class="flex items-center space-x-4 text-zinc-400 text-lg">
-                <a href="https://t.me/Auraarchitecture" target="_blank" rel="noopener noreferrer" class="hover:text-white transition" aria-label="Telegram"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
-                <a href="https://www.facebook.com/share/1BuQeJdsCv/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="hover:text-white transition" aria-label="Facebook"><i class="fa-brands fa-facebook" aria-hidden="true"></i></a>
-                <a href="https://www.tiktok.com/@aura.architecture4" target="_blank" rel="noopener noreferrer" class="hover:text-white transition" aria-label="TikTok"><i class="fa-brands fa-tiktok" aria-hidden="true"></i></a>
-                <a href="mailto:Auraarchitecture524@gmail.com" class="hover:text-white transition" aria-label="Gmail"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
+                <a href="https://t.me/Auraarchitecture" target="_blank" class="hover:text-white transition" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+                <a href="https://www.facebook.com/share/1BuQeJdsCv/?mibextid=wwXIfr" target="_blank" class="hover:text-white transition" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.tiktok.com/@aura.architecture4" target="_blank" class="hover:text-white transition" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="mailto:Auraarchitecture524@gmail.com" class="hover:text-white transition" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
                 
                 <div class="border-l border-zinc-800 pl-4">
-                    <a href="users.html" class="hover:text-white text-zinc-300 transition flex items-center gap-1.5 text-xs bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-3 py-1.5 rounded-full" aria-label="User Profile">
-                        <i class="fa-solid fa-circle-user text-base" aria-hidden="true"></i>
+                    <a href="users.html" class="hover:text-white text-zinc-300 transition flex items-center gap-1.5 text-xs bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-3 py-1.5 rounded-full" title="User Profile">
+                        <i class="fa-solid fa-circle-user text-base"></i>
                         <span class="hidden sm:inline font-medium">Account</span>
                     </a>
                 </div>
@@ -43,15 +45,16 @@
     <main class="pt-36 sm:pt-32 pb-24 max-w-3xl mx-auto px-4 sm:px-6 min-h-screen">
         <div class="mb-8 sm:mb-12 text-center">
             <span class="text-xs uppercase tracking-widest text-zinc-500 block mb-2">Background</span>
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-white">Professional Profile</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight">Professional Profile</h1>
         </div>
         
         <div class="space-y-8">
             <!-- About Me Box -->
-            <div class="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-12 space-y-6 rounded-lg">
+            <div class="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-12 space-y-6">
                 <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+                    <!-- Profile Image fetched from Supabase Storage Bucket -->
                     <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border border-zinc-700 bg-zinc-950 flex-shrink-0">
-                        <img src="images/profile.jpg" alt="Profile Picture" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2352525b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\'></path><circle cx=\'12\' cy=\'7\' r=\'4\'></circle></svg>';">
+                        <img id="profile-img" src="" alt="Profile Picture" class="w-full h-full object-cover">
                     </div>
                     <div class="space-y-4 text-center sm:text-left">
                         <h3 class="text-xl font-medium text-white">About Me</h3>
@@ -66,24 +69,24 @@
             </div>
 
             <!-- School Certificates Section -->
-            <div class="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-8 space-y-6 rounded-lg">
+            <div class="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-8 space-y-6">
                 <h3 class="text-xl font-medium text-white">School & Certificates</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="space-y-2">
                         <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
-                            <img src="images/certi1.HEIC" alt="Certificate 1" class="w-full h-full object-cover hover:scale-105 transition duration-500" loading="lazy">
+                            <img id="cert1-img" src="" alt="Certificate 1" class="w-full h-full object-cover hover:scale-105 transition duration-500">
                         </div>
                         <p class="text-xs text-zinc-400 text-center">Certificate 1</p>
                     </div>
                     <div class="space-y-2">
                         <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
-                            <img src="images/certi2.HEIC" alt="Certificate 2" class="w-full h-full object-cover hover:scale-105 transition duration-500" loading="lazy">
+                            <img id="cert2-img" src="" alt="Certificate 2" class="w-full h-full object-cover hover:scale-105 transition duration-500">
                         </div>
                         <p class="text-xs text-zinc-400 text-center">Certificate 2</p>
                     </div>
                     <div class="space-y-2">
                         <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded">
-                            <img src="images/cert3.jpg" alt="Certificate 3" class="w-full h-full object-cover hover:scale-105 transition duration-500" loading="lazy">
+                            <img id="cert3-img" src="" alt="Certificate 3" class="w-full h-full object-cover hover:scale-105 transition duration-500">
                         </div>
                         <p class="text-xs text-zinc-400 text-center">Certificate 3</p>
                     </div>
@@ -95,5 +98,35 @@
     <footer class="py-12 border-t border-zinc-900 text-center text-xs text-zinc-600 px-4">
         <p>&copy; 2026 Architectural. Powered by Davin Store.</p>
     </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://yqrjzrjcgjcsezimeeja.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlxcmp6cmpjZ2pjc2V6aW1lZWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5Nzg5NzMsImV4cCI6MjEwNDU1NDk3M30.bbYKOilE6OsgHEwmjoI0e-KBC5SMgH2bN2yYkzmItrk';
+        
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Define your bucket name (change 'images' if your bucket has a different name)
+        const BUCKET_NAME = 'images';
+
+        // Load images from Supabase Storage dynamically
+        function loadImagesFromSupabase() {
+            // Profile image
+            const { data: profileData } = _supabase.storage.from(BUCKET_NAME).getPublicUrl('profile.jpg');
+            document.getElementById('profile-img').src = profileData.publicUrl;
+
+            // Certificates (Make sure to upload them as .jpg or .png to Supabase)
+            const { data: cert1Data } = _supabase.storage.from(BUCKET_NAME).getPublicUrl('certi1.jpg');
+            document.getElementById('cert1-img').src = cert1Data.publicUrl;
+
+            const { data: cert2Data } = _supabase.storage.from(BUCKET_NAME).getPublicUrl('certi2.jpg');
+            document.getElementById('cert2-img').src = cert2Data.publicUrl;
+
+            const { data: cert3Data } = _supabase.storage.from(BUCKET_NAME).getPublicUrl('cert3.jpg');
+            document.getElementById('cert3-img').src = cert3Data.publicUrl;
+        }
+
+        window.addEventListener('DOMContentLoaded', loadImagesFromSupabase);
+    </script>
 </body>
 </html>
