@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Aura Architecture</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Kantumruy Pro', sans-serif; } </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 font-sans antialiased selection:bg-zinc-800">
+
+    <!-- NAVIGATION BAR -->
+    <nav class="fixed top-0 left-0 w-full z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+            <button
+                type="button"
+                onclick="goBack()"
+                class="text-xs sm:text-sm uppercase tracking-widest text-zinc-400 hover:text-white transition flex items-center gap-2 bg-transparent border-0 p-0 cursor-pointer"
+                aria-label="Go Back"
+            >
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> BACK
+            </button>
+            <span class="text-base sm:text-xl font-light tracking-widest uppercase text-white">
+                Aura<span class="font-bold">Architecture</span>
+            </span>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <main class="pt-32 pb-24 max-w-xl mx-auto px-4 sm:px-6 min-h-screen flex items-center justify-center">
+        
+        <!-- Loading State -->
+        <div
+            id="loading-state"
+            class="text-center text-zinc-500 py-10"
+            role="status"
+            aria-live="polite"
+        >
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-3" aria-hidden="true"></i>
+            <p id="loading-text" class="text-sm">Verifying secure session...</p>
+        </div>
+
+        <!-- User Profile Card -->
+        <div
+            id="profile-card"
+            class="w-full bg-zinc-900/40 border border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xl hidden"
+        >
+            <!-- Decorative Header Banner -->
+            <div class="h-28 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border-b border-zinc-800 relative">
+                <div class="absolute -bottom-10 left-1/2 transform -translate-x-1/2">
+                    <div class="relative">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-zinc-950 bg-zinc-900 shadow-xl flex items-center justify-center">
+                            <img
+                                id="user-avatar"
+                                src=""
+                                alt="Profile Avatar"
+                                class="w-full h-full object-cover hidden"
+                            >
+                            <i
+                                id="user-avatar-placeholder"
+                                class="fa-solid fa-user text-2xl text-zinc-500"
+                                aria-hidden="true"
+                            ></i>
+                        </div>
+                        <!-- Status indicator dot -->
+                        <span class="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-zinc-950 rounded-full" title="Active Session"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content Area -->
+            <div class="pt-14 px-6 sm:px-8 pb-8 space-y-6 text-center">
+                <!-- User Info -->
+                <div class="space-y-1">
+                    <div class="flex items-center justify-center gap-2">
+                        <h2 id="user-name" class="text-xl sm:text-2xl font-medium text-white tracking-wide">User Name</h2>
+                        <i class="fa-solid fa-circle-check text-sky-400 text-sm" title="Verified Account"></i>
+                    </div>
+                    <p id="user-identifier" class="text-xs sm:text-sm text-zinc-400 font-mono">user@example.com</p>
+                </div>
+
+                <!-- Provider Badge & Status Pill -->
+                <div class="flex justify-center gap-2">
+                    <span
+                        id="provider-badge"
+                        class="bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 px-3 py-1 rounded-full flex items-center gap-2 shadow-inner"
+                    >
+                        <i id="provider-icon" class="fa-solid fa-user" aria-hidden="true"></i>
+                        <span id="provider-name">Auth</span>
+                    </span>
+                    <span class="bg-emerald-950/40 border border-emerald-800/40 text-emerald-400 text-xs px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Active Session
+                    </span>
+                </div>
+
+                <!-- Information Breakdown Grid -->
+                <div class="space-y-2.5 text-left bg-zinc-950/60 p-4 sm:p-5 rounded-xl border border-zinc-800/60 text-xs sm:text-sm">
+                    <div class="flex justify-between items-center py-1 border-b border-zinc-900/80">
+                        <span class="text-zinc-500">Authentication Method</span>
+                        <span id="info-auth-type" class="text-zinc-200 capitalize font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 border-b border-zinc-900/80">
+                        <span class="text-zinc-500">Account Created</span>
+                        <span id="info-created-at" class="text-zinc-300 font-mono text-[11px]">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-zinc-500">User Account ID</span>
+                        <div class="flex items-center gap-2">
+                            <span id="info-user-id" class="text-zinc-300 font-mono text-[11px] truncate max-w-[130px] sm:max-w-[180px]">-</span>
+                            <button type="button" onclick="copyUserId()" class="text-zinc-500 hover:text-white transition cursor-pointer" title="Copy ID">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3 pt-2">
+                    <button
+                        type="button"
+                        onclick="window.location.href='index.html'"
+                        class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 py-3 rounded-xl text-xs uppercase tracking-wider font-medium transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <i class="fa-solid fa-house" aria-hidden="true"></i> Return to Home Portfolio
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="handleLogout()"
+                        class="w-full bg-red-950/30 hover:bg-red-900/50 border border-red-900/40 text-red-300 py-3 rounded-xl text-xs uppercase tracking-wider font-medium transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sign Out Securely
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-8 border-t border-zinc-900 text-center text-xs text-zinc-600 px-4">
+        <p>&copy; 2026 Architectural Portfolio. Powered by Supabase & Tailwind CSS.</p>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        const SUPABASE_URL = 'https://yqrjzrjcgjcsezimeeja.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlxcmp6cmpjZ2pjc2V6aW1lZWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5Nzg5NzMsImV4cCI6MjEwNDU1NDk3M30.bbYKOilE6OsgHEwmjoI0e-KBC5SMgH2bN2yYkzmItrk';
+        
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let cachedUserId = '';
+
+        function getElement(id) {
+            return document.getElementById(id);
+        }
+
+        function safeText(str, fallback = '-') {
+            if (typeof str !== 'string' && typeof str !== 'number') return fallback;
+            const trimmed = String(str).trim();
+            return trimmed.length > 0 ? trimmed : fallback;
+        }
+
+        function sanitizeAvatarUrl(url) {
+            if (typeof url !== 'string') return null;
+            const trimmed = url.trim();
+            if (!trimmed) return null;
+            if (trimmed.startsWith('javascript:') || trimmed.startsWith('vbscript:')) return null;
+            if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) return trimmed;
+            return null;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            } catch (e) {
+                return '-';
+            }
+        }
+
+        function goBack() {
+            try {
+                if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
+                    window.history.back();
+                    return;
+                }
+            } catch (e) {}
+            window.location.href = 'index.html';
+        }
+
+        function setAvatar(url) {
+            const avatarImg = getElement('user-avatar');
+            const placeholder = getElement('user-avatar-placeholder');
+            const safeUrl = sanitizeAvatarUrl(url);
+
+            if (safeUrl) {
+                avatarImg.src = safeUrl;
+                avatarImg.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+
+                avatarImg.onerror = () => {
+                    avatarImg.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                };
+            } else {
+                avatarImg.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        }
+
+        function copyUserId() {
+            if (!cachedUserId) return;
+            navigator.clipboard.writeText(cachedUserId).then(() => {
+                const icon = document.querySelector('#info-user-id + button i');
+                if (icon) {
+                    icon.className = 'fa-solid fa-check text-emerald-400';
+                    setTimeout(() => { icon.className = 'fa-regular fa-copy'; }, 2000);
+                }
+            });
+        }
+
+        function renderUser(user) {
+            const meta = user.user_metadata || {};
+            const name = meta.full_name || meta.name || user.email || 'Authenticated User';
+            const avatar = meta.avatar_url || meta.picture || null;
+            const provider = user.app_metadata?.provider || 'Supabase';
+
+            cachedUserId = user.id || '';
+
+            getElement('user-name').textContent = safeText(name, 'User');
+            getElement('user-identifier').textContent = safeText(user.email, safeText(user.id));
+            getElement('info-auth-type').textContent = provider.charAt(0).toUpperCase() + provider.slice(1) + ' SSO';
+            getElement('info-created-at').textContent = formatDate(user.created_at);
+            getElement('info-user-id').textContent = safeText(user.id);
+
+            if (provider === 'google') {
+                getElement('provider-icon').className = 'fa-brands fa-google text-red-400';
+                getElement('provider-name').textContent = 'Google Auth';
+            } else {
+                getElement('provider-icon').className = 'fa-solid fa-shield-halved text-emerald-400';
+                getElement('provider-name').textContent = 'Secure Email';
+            }
+
+            setAvatar(avatar);
+        }
+
+        async function initUserProfile() {
+            const loadingState = getElement('loading-state');
+            const profileCard = getElement('profile-card');
+
+            try {
+                const { data: { session }, error } = await _supabase.auth.getSession();
+                if (error) throw error;
+                
+                if (session?.user) {
+                    const userId = session.user.id;
+
+                    // Verify user block status
+                    const { data: profileData, error: profileError } = await _supabase
+                        .from('profiles')
+                        .select('is_blocked')
+                        .eq('id', String(userId))
+                        .maybeSingle();
+
+                    if (!profileError && profileData && profileData.is_blocked === true) {
+                        await _supabase.auth.signOut();
+                        sessionStorage.clear();
+                        window.location.href = 'login.html?blocked=true';
+                        return;
+                    }
+
+                    renderUser(session.user);
+                    loadingState.classList.add('hidden');
+                    profileCard.classList.remove('hidden');
+                    return;
+                }
+
+                window.location.href = 'login.html';
+
+            } catch (err) {
+                console.error("Authentication error:", err);
+                window.location.href = 'login.html';
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await _supabase.auth.signOut();
+            } catch (e) {
+                console.error("Signout error:", e);
+            }
+
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        window.addEventListener('DOMContentLoaded', initUserProfile);
+    </script>
+</body>
+</html>
