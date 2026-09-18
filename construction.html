@@ -128,12 +128,12 @@
                                 type="tel"
                                 id="contact-phone"
                                 required
-                                minlength="6"
                                 maxlength="30"
                                 autocomplete="tel"
                                 placeholder="012 345 678" 
                                 class="w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 transition"
                             >
+                            <p class="text-[10px] text-zinc-500 mt-1">ឧទាហរណ៍៖ 012345678 ឬ 012 345 678</p>
                         </div>
                     </div>
 
@@ -502,17 +502,27 @@
             const phone = getElement('contact-phone').value.trim();
             const message = getElement('contact-message').value.trim();
 
-            // STRICT VALIDATION: Ensure Name and Phone are filled out and not blank spaces
+            // 1. Strict Check for Name & Phone presence
             if (!name || !phone) {
                 statusMsg.textContent = "សូមបញ្ចូលឈ្មោះ និងលេខទូរស័ព្ទឱ្យបានត្រឹមត្រូវ។ (Name and Phone Number are required)";
                 statusMsg.className = "text-xs text-center text-red-400 mt-2 block font-medium";
                 statusMsg.classList.remove('hidden');
                 
-                if (!name) {
-                    getElement('contact-name').focus();
-                } else if (!phone) {
-                    getElement('contact-phone').focus();
-                }
+                if (!name) getElement('contact-name').focus();
+                else if (!phone) getElement('contact-phone').focus();
+                return;
+            }
+
+            // 2. Strict Check for Cambodian Mobile Prefixes (Cellcard, Smart, Metfone)
+            // Strips spaces, dashes, or country code (+855) to check the format accurately
+            const cleanPhone = phone.replace(/[\s\-\+]/g, '').replace(/^855/, '0');
+            const cambodiaPhoneRegex = /^(011|012|017|061|076|077|078|085|089|092|095|099|010|015|016|069|070|081|086|087|093|096|098|031|060|066|067|068|071|088|090|097)\d{6}$/;
+
+            if (!cambodiaPhoneRegex.test(cleanPhone)) {
+                statusMsg.textContent = "លេខទូរស័ព្ទមិនត្រឹមត្រូវ! សូមប្រើប្រាស់លេខទូរស័ព្ទក្នុងស្រុកដែលត្រឹមត្រូវ។ (Invalid phone prefix)";
+                statusMsg.className = "text-xs text-center text-red-400 mt-2 block font-medium";
+                statusMsg.classList.remove('hidden');
+                getElement('contact-phone').focus();
                 return;
             }
 
