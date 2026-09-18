@@ -36,6 +36,7 @@
             </div>
         </div>
     </nav>
+    
     <main class="pt-36 sm:pt-32 pb-24 max-w-3xl mx-auto px-4 sm:px-6 min-h-screen">
         <div class="mb-8 sm:mb-12 text-center">
             <span class="text-xs uppercase tracking-widest text-zinc-500 block mb-2">Background</span>
@@ -46,9 +47,10 @@
             <div class="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-12 rounded-lg space-y-6">
                 <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
                     <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border border-zinc-700 bg-zinc-950 flex-shrink-0">
+                        <!-- REPLACE 'your-bucket-name' with your Supabase storage bucket name -->
                         <img 
                             id="profile-img"
-                            src="images/profile.jpg" 
+                            src="https://yqrjzrjcgjcsezimeeja.supabase.co/storage/v1/object/public/your-bucket-name/profile.jpg" 
                             alt="Profile Picture" 
                             class="w-full h-full object-cover"
                             onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400';"
@@ -65,13 +67,16 @@
                     </div>
                 </div>
             </div>
+
             <div class="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-8 rounded-lg space-y-6">
                 <h3 class="text-xl font-medium text-white">School &amp; Certificates</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    
+                    <!-- Certificate 1 -->
                     <div class="space-y-2">
                         <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded relative group">
                             <img 
-                                src="images/certi1.JPG" 
+                                src="https://yqrjzrjcgjcsezimeeja.supabase.co/storage/v1/object/public/your-bucket-name/certi1.JPG" 
                                 alt="Certificate 1" 
                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=600';"
@@ -79,10 +84,12 @@
                         </div>
                         <p class="text-xs text-zinc-400 text-center">បរិញ្ញាបត្រវិស្វកម្ម សំណង់ស៊ីវិល</p>
                     </div>
+
+                    <!-- Certificate 2 -->
                     <div class="space-y-2">
                         <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded relative group">
                             <img 
-                                src="images/certi2.JPG" 
+                                src="https://yqrjzrjcgjcsezimeeja.supabase.co/storage/v1/object/public/your-bucket-name/certi2.jpg" 
                                 alt="Certificate 2" 
                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=600';"
@@ -90,30 +97,35 @@
                         </div>
                         <p class="text-xs text-zinc-400 text-center">បរិញ្ញាបត្រវិស្វកម្ម អគ្គិសនី</p>
                     </div>
+
+                    <!-- Certificate 3 -->
                     <div class="space-y-2">
                         <div class="aspect-[4/3] bg-zinc-950 border border-zinc-800 overflow-hidden rounded relative group">
                             <img 
-                                src="images/cert3.jpg" 
+                                src="https://yqrjzrjcgjcsezimeeja.supabase.co/storage/v1/object/public/your-bucket-name/certi3.JPG" 
                                 alt="Certificate 3" 
                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=600';"
                             >
                         </div>
-                        <p class="text-xs text-zinc-400 text-center">បរិញ្ញាបត្រ ស្ថាបត្យកម្មនិងនគររូបណីយកម្ម</p>
+                        <p class="text-xs text-zinc-400 text-center">បរិញ្ញាបត្រ ស្ថាបត្យកម្ម</p>
                     </div>
 
                 </div>
             </div>
         </div>
     </main>
+
     <footer class="py-12 border-t border-zinc-900 text-center text-xs text-zinc-600 px-4">
         <p>&copy; 2026 Architectural. Powered by Davin Store.</p>
     </footer>
+
     <script>
         const SUPABASE_URL = 'https://yqrjzrjcgjcsezimeeja.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlxcmp6cmpjZ2pjc2V6aW1lZWphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5Nzg5NzMsImV4cCI6MjEwNDU1NDk3M30.bbYKOilE6OsgHEwmjoI0e-KBC5SMgH2bN2yYkzmItrk';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         async function checkUserBlockStatus(userId, identifierType = 'supabase') {
             if (!userId) return false;
             try {
@@ -162,6 +174,7 @@
                 console.error("Session check error:", e);
             }
         }
+        
         window.addEventListener('DOMContentLoaded', async () => {
             _supabase.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
