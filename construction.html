@@ -85,12 +85,13 @@
                             for="contact-name"
                             class="block text-xs uppercase tracking-wider text-zinc-400 mb-1"
                         >
-                            ឈ្មោះ (Name)
+                            ឈ្មោះ (Name) <span class="text-red-400">*</span>
                         </label>
                         <input
                             type="text"
                             id="contact-name"
                             required
+                            minlength="2"
                             maxlength="100"
                             autocomplete="name"
                             placeholder="សូមបញ្ចូលឈ្មោះរបស់អ្នក" 
@@ -109,7 +110,6 @@
                             <input
                                 type="email"
                                 id="contact-email"
-                                required
                                 maxlength="254"
                                 autocomplete="email"
                                 placeholder="example@gmail.com" 
@@ -122,12 +122,13 @@
                                 for="contact-phone"
                                 class="block text-xs uppercase tracking-wider text-zinc-400 mb-1"
                             >
-                                លេខទូរស័ព្ទ (Phone Number)
+                                លេខទូរស័ព្ទ (Phone Number) <span class="text-red-400">*</span>
                             </label>
                             <input
                                 type="tel"
                                 id="contact-phone"
                                 required
+                                minlength="6"
                                 maxlength="30"
                                 autocomplete="tel"
                                 placeholder="012 345 678" 
@@ -136,7 +137,6 @@
                         </div>
                     </div>
 
-                    <!-- NEW: Message / House Model Requirement Row -->
                     <div>
                         <label
                             for="contact-message"
@@ -173,32 +173,26 @@
         </section>
     </main>
 
-    <!-- Social & Direct Contact Section (Added Above Footer) -->
     <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
         <div class="border-t border-zinc-900 pt-12 text-center space-y-6">
             <h3 class="text-sm uppercase tracking-widest text-zinc-400">ទំនាក់ទំនងផ្ទាល់ (Direct Contacts)</h3>
             <div class="flex flex-wrap justify-center items-center gap-4">
-                <!-- Telegram -->
                 <a href="https://t.me/Auraarchitecture" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 px-5 py-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-200 transition">
                     <i class="fa-brands fa-telegram text-sky-400 text-base"></i>
                     <span>Telegram</span>
                 </a>
-                <!-- Facebook -->
                 <a href="https://www.facebook.com/share/1BuQeJdsCv/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 px-5 py-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-200 transition">
                     <i class="fa-brands fa-facebook text-blue-500 text-base"></i>
                     <span>Facebook</span>
                 </a>
-                <!-- TikTok -->
                 <a href="https://www.tiktok.com/@aura.architecture4" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 px-5 py-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-200 transition">
                     <i class="fa-brands fa-tiktok text-white text-base"></i>
                     <span>TikTok</span>
                 </a>
-                <!-- Phone Call -->
                 <a href="tel:012345678" class="flex items-center gap-2.5 px-5 py-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-200 transition">
                     <i class="fa-solid fa-phone text-emerald-400 text-base"></i>
                     <span>088 810 3840</span>
                 </a>
-                <!-- Gmail -->
                 <a href="mailto:Auraarchitecture524@gmail.com" class="flex items-center gap-2.5 px-5 py-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-200 transition">
                     <i class="fa-solid fa-envelope text-red-400 text-base"></i>
                     <span>Gmail</span>
@@ -503,6 +497,25 @@
             const statusMsg = getElement('form-status');
             statusMsg.classList.add('hidden');
 
+            const name = getElement('contact-name').value.trim();
+            const email = getElement('contact-email').value.trim();
+            const phone = getElement('contact-phone').value.trim();
+            const message = getElement('contact-message').value.trim();
+
+            // STRICT VALIDATION: Ensure Name and Phone are filled out and not blank spaces
+            if (!name || !phone) {
+                statusMsg.textContent = "សូមបញ្ចូលឈ្មោះ និងលេខទូរស័ព្ទឱ្យបានត្រឹមត្រូវ។ (Name and Phone Number are required)";
+                statusMsg.className = "text-xs text-center text-red-400 mt-2 block font-medium";
+                statusMsg.classList.remove('hidden');
+                
+                if (!name) {
+                    getElement('contact-name').focus();
+                } else if (!phone) {
+                    getElement('contact-phone').focus();
+                }
+                return;
+            }
+
             const currentUser = await getAuthenticatedUser();
             if (!currentUser) {
                 showLoginModal();
@@ -512,6 +525,7 @@
             const userId = currentUser.type === 'google' 
                 ? currentUser.user.id 
                 : (currentUser.user.id || currentUser.user.telegram_id || currentUser.user.username);
+            
             const isBlocked = await checkUserBlockStatus(userId);
             if (isBlocked) {
                 await _supabase.auth.signOut();
@@ -522,11 +536,6 @@
             }
 
             const submitBtn = getElement('contact-submit-btn');
-            const name = getElement('contact-name').value.trim();
-            const email = getElement('contact-email').value.trim();
-            const phone = getElement('contact-phone').value.trim();
-            const message = getElement('contact-message').value.trim();
-
             submitBtn.disabled = true;
             submitBtn.textContent = "Sending Message...";
 
@@ -546,6 +555,7 @@
 
                 statusMsg.textContent = "អរគុណ! សាររបស់អ្នកត្រូវបានផ្ញើរួចរាល់។ កំពុងបញ្ជូនលោកអ្នកទៅទំព័រដើម...";
                 statusMsg.className = "text-xs text-center text-green-400 mt-2 block font-medium";
+                statusMsg.classList.remove('hidden');
                 getElement('contact-form').reset();
 
                 setTimeout(() => {
@@ -556,6 +566,7 @@
                 console.error("Submission error:", err);
                 statusMsg.textContent = "មានបញ្ហាក្នុងការផ្ញើសារ។ សូមព្យាយាមម្តងទៀត។";
                 statusMsg.className = "text-xs text-center text-red-400 mt-2 block font-medium";
+                statusMsg.classList.remove('hidden');
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Send Message";
             }
@@ -567,7 +578,7 @@
                 const userId = currentUser.type === 'google' 
                     ? currentUser.user.id 
                     : (currentUser.user.id || currentUser.user.telegram_id || currentUser.user.username);
-              
+             
                 const isBlocked = await checkUserBlockStatus(userId);
                 if (isBlocked) {
                     await _supabase.auth.signOut();
