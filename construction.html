@@ -519,7 +519,7 @@
             const cambodiaPhoneRegex = /^(011|012|017|061|076|077|078|085|089|092|095|099|010|015|016|069|070|081|086|087|093|096|098|031|060|066|067|068|071|088|090|097)\d{6}$/;
 
             if (!cambodiaPhoneRegex.test(cleanPhone)) {
-                statusMsg.textContent = "លេខទូរស័ព្ទមិនត្រឹមត្រូវ! សូមប្រើប្រាស់លេខទូរស័ព្ទក្នុងស្រុកដែលត្រឹមត្រូវ។ (Invalid phone prefix)";
+                statusMsg.textContent = "លេខទូរស័ព្ទមិនត្រឹមត្រូវ! សូមប្រើប្រាស់លេខទូរស័ព្ទក្នុងស្រុកដែលត្រឹមត្រូវ។ (Invalid phone number)";
                 statusMsg.className = "text-xs text-center text-red-400 mt-2 block font-medium";
                 statusMsg.classList.remove('hidden');
                 getElement('contact-phone').focus();
@@ -563,7 +563,7 @@
 
                 if (error) throw error;
 
-                statusMsg.textContent = "អរគុណ! សាររបស់អ្នកត្រូវបានផ្ញើរួចរាល់។ កំពុងបញ្ជូនលោកអ្នកទៅទំព័រដើម...";
+                statusMsg.textContent = "សូមអរគុណ! សាររបស់អ្នកត្រូវបានផ្ញើរួចរាល់។";
                 statusMsg.className = "text-xs text-center text-green-400 mt-2 block font-medium";
                 statusMsg.classList.remove('hidden');
                 getElement('contact-form').reset();
