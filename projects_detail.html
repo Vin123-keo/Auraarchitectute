@@ -137,7 +137,7 @@
                                 class="w-4 h-4 accent-white rounded border-zinc-700 bg-zinc-900"
                             >
                             <span class="text-xs sm:text-sm text-zinc-300">
-                                  MEP Plan Engineering & Calculations
+                                 MEP Plan Engineering & Calculations
                             </span>
                         </label>
                     </div>
@@ -147,7 +147,7 @@
                                 for="order-name"
                                 class="block text-xs uppercase tracking-wider text-zinc-400 mb-1"
                             >
-                                Full Name
+                                Full Name <span class="text-red-400">*</span>
                             </label>
                             <input
                                 type="text"
@@ -171,7 +171,6 @@
                                 <input
                                     type="email"
                                     id="order-email"
-                                    required
                                     maxlength="254"
                                     autocomplete="email"
                                     placeholder="example@gmail.com"
@@ -184,7 +183,7 @@
                                     for="order-phone"
                                     class="block text-xs uppercase tracking-wider text-zinc-400 mb-1"
                                 >
-                                    Phone Number
+                                    Phone Number <span class="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="tel"
@@ -192,7 +191,9 @@
                                     required
                                     maxlength="30"
                                     autocomplete="tel"
-                                    placeholder="012 345 678"
+                                    inputmode="numeric"
+                                    oninput="formatCambodiaPhone(this)"
+                                    placeholder="012345678"
                                     class="w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 transition"
                                 >
                             </div>
@@ -232,7 +233,7 @@
                     Login Required
                 </h4>
                 <p class="text-xs text-zinc-400">
-                    Please log in to your account first to proceed.
+                    Please log in to your account first to submit a purchase inquiry for this blueprint.
                 </p>
             </div>
 
@@ -311,6 +312,34 @@
             if (!element) return;
             const safeValue = typeof value === 'string' ? value.trim() : '';
             element.textContent = safeValue || fallback;
+        }
+
+        // Valid Cambodian mobile operator prefixes from the official reference[cite: 6]
+        const VALID_CAMBODIA_PREFIXES = [
+            // Cellcard[cite: 6]
+            '011', '012', '017', '061', '076', '077', '078', '085', '089', '092', '095', '099',
+            // Smart[cite: 6]
+            '010', '015', '016', '069', '070', '081', '086', '087', '093', '096', '098',
+            // Metfone[cite: 6]
+            '031', '060', '066', '067', '068', '071', '088', '090', '097'
+        ];
+
+        function formatCambodiaPhone(input) {
+            let digits = input.value.replace(/\D/g, '');
+            if (digits.length > 10) {
+                digits = digits.slice(0, 10);
+            }
+            if (digits.length > 0 && !digits.startsWith('0')) {
+                digits = '0' + digits;
+            }
+            input.value = digits;
+        }
+
+        function isValidCambodiaPhoneNumber(phoneStr) {
+            if (!phoneStr || phoneStr.length < 9 || phoneStr.length > 10) return false;
+            if (!phoneStr.startsWith('0')) return false;
+            const prefix = phoneStr.slice(0, 3);
+            return VALID_CAMBODIA_PREFIXES.includes(prefix);
         }
 
         function safeImageUrl(rawPath) {
@@ -418,11 +447,14 @@
             const currentUser = await getAuthenticatedUser();
             const emailInput = getElement('order-email');
             const nameInput = getElement('order-name');
-            if (!emailInput || !nameInput) return;
+            const phoneInput = getElement('order-phone');
+            if (!nameInput || !phoneInput) return;
 
             if (!currentUser) {
-                emailInput.readOnly = false;
-                emailInput.className = "w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 transition";
+                if (emailInput) {
+                    emailInput.readOnly = false;
+                    emailInput.className = "w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 transition";
+                }
                 return;
             }
 
@@ -448,7 +480,7 @@
                 }
             }
 
-            if (userEmail) {
+            if (userEmail && emailInput) {
                 emailInput.value = userEmail.slice(0, 254);
                 emailInput.readOnly = true;
                 emailInput.className = "w-full bg-zinc-900/50 border border-zinc-800 rounded px-4 py-2.5 text-sm text-zinc-400 cursor-not-allowed focus:outline-none transition";
@@ -649,6 +681,23 @@
             const statusMsg = getElement('order-status');
             statusMsg.classList.add('hidden');
 
+            const name = getElement('order-name').value.trim();
+            const phone = getElement('order-phone').value.trim();
+
+            if (!name) {
+                statusMsg.textContent = "Please enter your full name.";
+                statusMsg.className = "text-xs text-center text-red-400 mt-2 block font-medium";
+                getElement('order-name').focus();
+                return;
+            }
+
+            if (!isValidCambodiaPhoneNumber(phone)) {
+                statusMsg.textContent = "Please enter a valid Cambodian mobile number using an official operator prefix (e.g., 012345678).";
+                statusMsg.className = "text-xs text-center text-red-400 mt-2 block font-medium";
+                getElement('order-phone').focus();
+                return;
+            }
+
             const checkedOptions = Array.from(document.querySelectorAll('input[name="options"]:checked')).map(cb => cb.value);
             if (checkedOptions.length === 0) {
                 statusMsg.textContent = "Please select at least one package option before submitting.";
@@ -670,9 +719,7 @@
             if (isBlocked) return;
 
             const submitBtn = getElement('order-submit-btn');
-            const name = getElement('order-name').value.trim();
             const email = getElement('order-email').value.trim();
-            const phone = getElement('order-phone').value.trim();
 
             submitBtn.disabled = true;
             submitBtn.textContent = "Sending Order...";
