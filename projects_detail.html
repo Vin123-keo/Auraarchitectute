@@ -90,7 +90,7 @@
             >
                 <div class="text-center space-y-2">
                     <h3 class="text-xl sm:text-2xl font-light text-white tracking-wide uppercase">
-                        Buy This Project Blueprint- ទិញគម្រោងប្លង់
+                        Buy This Project Blueprint-ទិញគម្រោងប្លង់
                     </h3>
                     <p class="text-xs sm:text-sm text-zinc-400">
                         Select the options you need and leave your contact details below.
@@ -233,7 +233,7 @@
                     Login Required
                 </h4>
                 <p class="text-xs text-zinc-400">
-                    Please log in to your account first to submit a purchase inquiry for this blueprint.
+                    Please log in to your account first to proceed.
                 </p>
             </div>
 
@@ -316,14 +316,10 @@
 
         // Valid Cambodian mobile operator prefixes from the official reference[cite: 6]
         const VALID_CAMBODIA_PREFIXES = [
-            // Cellcard[cite: 6]
             '011', '012', '017', '061', '076', '077', '078', '085', '089', '092', '095', '099',
-            // Smart[cite: 6]
             '010', '015', '016', '069', '070', '081', '086', '087', '093', '096', '098',
-            // Metfone[cite: 6]
             '031', '060', '066', '067', '068', '071', '088', '090', '097'
         ];
-
         function formatCambodiaPhone(input) {
             let digits = input.value.replace(/\D/g, '');
             if (digits.length > 10) {
@@ -334,14 +330,12 @@
             }
             input.value = digits;
         }
-
         function isValidCambodiaPhoneNumber(phoneStr) {
             if (!phoneStr || phoneStr.length < 9 || phoneStr.length > 10) return false;
             if (!phoneStr.startsWith('0')) return false;
             const prefix = phoneStr.slice(0, 3);
             return VALID_CAMBODIA_PREFIXES.includes(prefix);
         }
-
         function safeImageUrl(rawPath) {
             if (typeof rawPath !== 'string') return null;
             let trimmed = rawPath.trim();
@@ -352,15 +346,12 @@
             if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
                 return trimmed;
             }
-
             if (trimmed.startsWith('/')) {
                 trimmed = trimmed.substring(1);
             }
-
             if (trimmed.startsWith('storage/v1/object/public/')) {
                 return `${SUPABASE_URL}/${trimmed}`;
             }
-
             const { data } = _supabase.storage.from(STORAGE_BUCKET_NAME).getPublicUrl(trimmed);
             return data?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET_NAME}/${trimmed}`;
         }
@@ -372,7 +363,6 @@
             if (!/^[a-zA-Z0-9_-]+$/.test(id)) return null;
             return id;
         }
-
         function showLoginModal() {
             const modal = getElement('login-modal');
             if (modal) modal.classList.remove('hidden');
@@ -387,11 +377,9 @@
             const modal = getElement('blocked-modal');
             if (modal) modal.classList.remove('hidden');
         }
-
         function handleBlockedModalClose() {
             window.location.href = 'index.html';
         }
-
         function redirectToLogin() {
             try {
                 const currentUrl = new URL(window.location.href);
@@ -442,14 +430,12 @@
             }
             return false;
         }
-
         async function setupUserProfile() {
             const currentUser = await getAuthenticatedUser();
             const emailInput = getElement('order-email');
             const nameInput = getElement('order-name');
             const phoneInput = getElement('order-phone');
             if (!nameInput || !phoneInput) return;
-
             if (!currentUser) {
                 if (emailInput) {
                     emailInput.readOnly = false;
@@ -457,17 +443,13 @@
                 }
                 return;
             }
-
             const userId = currentUser.type === 'google' 
                 ? currentUser.user.id 
                 : (currentUser.user.id || currentUser.user.telegram_id);
-
             const isBlocked = await checkAndHandleBlockStatus(userId);
             if (isBlocked) return;
-
             let userEmail = '';
             let userName = '';
-
             if (currentUser.type === 'google') {
                 userEmail = currentUser.user.email || '';
                 const metadata = currentUser.user.user_metadata || {};
@@ -479,18 +461,15 @@
                     userName = `${telegram.first_name} ${telegram.last_name || ''}`.trim();
                 }
             }
-
             if (userEmail && emailInput) {
                 emailInput.value = userEmail.slice(0, 254);
                 emailInput.readOnly = true;
                 emailInput.className = "w-full bg-zinc-900/50 border border-zinc-800 rounded px-4 py-2.5 text-sm text-zinc-400 cursor-not-allowed focus:outline-none transition";
             }
-
             if (userName && !nameInput.value) {
                 nameInput.value = userName.slice(0, 100);
             }
         }
-
         function goBack() {
             try {
                 if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
@@ -500,40 +479,32 @@
             } catch (e) {}
             window.location.href = 'index.html';
         }
-
         function showLoadingError(message) {
             const loading = getElement('loading-state');
             if (!loading) return;
-            
             loading.textContent = '';
             const p = document.createElement('p');
             p.className = 'text-red-400';
             p.textContent = message + ' ';
-
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.onclick = goBack;
             btn.className = 'underline bg-transparent border-0 text-red-400 cursor-pointer ml-1';
             btn.textContent = 'Return';
-
             p.appendChild(btn);
             loading.appendChild(p);
         }
-
         function createProjectImage(imageUrl, index) {
             const safeUrl = safeImageUrl(imageUrl);
             if (!safeUrl) return null;
-
             const wrapper = document.createElement('div');
             wrapper.className = 'w-full aspect-[3840/2434] bg-zinc-900 border border-zinc-800 overflow-hidden rounded shadow-md';
-
             const image = document.createElement('img');
             image.src = safeUrl;
             image.alt = `Project Image ${index}`;
             image.className = 'w-full h-full object-cover';
             image.loading = 'lazy';
             image.decoding = 'async';
-
             image.addEventListener('error', () => {
                 wrapper.textContent = '';
                 const errDiv = document.createElement('div');
@@ -541,34 +512,26 @@
                 errDiv.textContent = 'Image failed to load';
                 wrapper.appendChild(errDiv);
             }, { once: true });
-
             wrapper.appendChild(image);
             return wrapper;
         }
-
         function createDescription(description) {
             if (typeof description !== 'string' || !description.trim()) return null;
-
             const wrapper = document.createElement('div');
             wrapper.className = 'w-full';
-
             const paragraph = document.createElement('p');
             paragraph.textContent = description.trim();
             paragraph.className = 'text-zinc-300 font-light leading-relaxed text-sm sm:text-base md:text-lg';
-
             wrapper.appendChild(paragraph);
             return wrapper;
         }
-
         async function loadDetails() {
             const id = getSafeProjectId();
             if (!id) {
                 showLoadingError('No valid project ID specified.');
                 return;
             }
-
             currentProjectId = isNaN(id) ? id : parseInt(id, 10);
-
             try {
                 let { data: detailRows } = await _supabase
                     .from('project_details')
@@ -584,31 +547,24 @@
                         detailRows = fallback.data;
                     }
                 }
-
                 const detailData = (detailRows && detailRows.length > 0) ? detailRows[0] : null;
-
                 const { data: mainData } = await _supabase
                     .from('main_projects')
                     .select('*')
                     .eq('id', currentProjectId)
                     .maybeSingle();
-
                 if (!detailData && !mainData) {
                     showLoadingError('Project details not found.');
                     return;
                 }
-
                 currentCategory = mainData?.category || detailData?.category || 'Design by Malin Keo';
                 currentProjectTitle = mainData?.title || detailData?.title || 'Project Detail';
-
                 setText(getElement('proj-category'), currentCategory, 'Category');
                 setText(getElement('proj-title'), currentProjectTitle, 'Project Detail');
                 setText(getElement('proj-location-text'), detailData?.client_or_location || mainData?.location, 'Location Not Specified');
-
                 const sectionsContainer = getElement('content-sections');
                 sectionsContainer.innerHTML = '';
                 let contentRendered = false;
-
                 if (detailData) {
                     for (let i = 1; i <= 5; i++) {
                         const rawImg = detailData[`image_${i}`] || 
@@ -617,48 +573,37 @@
                                        detailData[`img_${i}`] ||
                                        detailData[`photo_${i}`] ||
                                        detailData[`photo${i}`];
-
                         const rawDesc = detailData[`description_${i}`] || 
                                         detailData[`description${i}`] || 
                                         detailData[`desc_${i}`] ||
                                         detailData[`details_${i}`];
-
                         if (rawImg || rawDesc) {
                             const imageElem = createProjectImage(rawImg, i);
                             const descElem = createDescription(rawDesc);
-
                             if (imageElem || descElem) {
                                 contentRendered = true;
                                 const block = document.createElement('div');
                                 block.className = 'grid grid-cols-1 md:grid-cols-2 gap-6 items-center border-b border-zinc-900 pb-12 last:border-b-0';
-
                                 if (imageElem) block.appendChild(imageElem);
                                 if (descElem) block.appendChild(descElem);
-
                                 sectionsContainer.appendChild(block);
                             }
                         }
                     }
                 }
-
                 if (!contentRendered && mainData) {
                     const rawImg = mainData.thumbnail_url || mainData.image_url || mainData.thumbnail;
                     const rawDesc = mainData.short_description || mainData.description;
-
                     const imageElem = createProjectImage(rawImg, 1);
                     const descElem = createDescription(rawDesc);
-
                     if (imageElem || descElem) {
                         const block = document.createElement('div');
                         block.className = 'grid grid-cols-1 md:grid-cols-2 gap-6 items-center';
-
                         if (imageElem) block.appendChild(imageElem);
                         if (descElem) block.appendChild(descElem);
-
                         sectionsContainer.appendChild(block);
                     }
                 }
-
                 const buySection = getElement('buy-project-section');
                 const lowerCat = currentCategory.toLowerCase();
                 if (lowerCat === 'design by malin keo' || lowerCat === 'portfolio' || lowerCat === 'work' || !currentCategory) {
@@ -685,7 +630,7 @@
             const phone = getElement('order-phone').value.trim();
 
             if (!name) {
-                statusMsg.textContent = "Please enter your full name.";
+                statusMsg.textContent = "Please enter your​ name.";
                 statusMsg.className = "text-xs text-center text-red-400 mt-2 block font-medium";
                 getElement('order-name').focus();
                 return;
@@ -739,7 +684,7 @@
 
                 if (error) throw error;
 
-                statusMsg.textContent = "Thank you! Your purchase request has been received. Redirecting...";
+                statusMsg.textContent = "Thank you! Your purchase request has been received.";
                 statusMsg.className = "text-xs text-center text-green-400 mt-2 block font-medium";
                 setTimeout(() => {
                     window.location.href = 'index.html';
